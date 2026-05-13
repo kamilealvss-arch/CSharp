@@ -24,11 +24,9 @@ namespace teste03
                 Console.WriteLine (v[a]);
                 b = b + 2;
             }
-
-
-    }
-  }
-}
+          }
+        }
+      }
 
     
     
