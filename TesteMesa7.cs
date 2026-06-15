@@ -25,7 +25,14 @@ namespace CalculadoraInvestimentos
 
         public void Calculo()
         {
-            int meses = ((dataFim.Year - dataInicio.Year) * 12) + (dataFim.Month - dataInicio.Month) + 1;
+            int meses = 0;
+            DateTime dataSimulada = dataInicio;
+            while (dataSimulada.AddMonths(1) <= dataFim)
+            {
+                meses++;
+                dataSimulada = dataSimulada.AddMonths(1);
+            }
+            
             int mesResgate = ((dataResgate.Year - dataInicio.Year) * 12) + (dataResgate.Month - dataInicio.Month) + 1;
 
             Console.WriteLine("\n==========================================================================================");
@@ -62,8 +69,7 @@ namespace CalculadoraInvestimentos
                 }
             }
 
-            DateTime dataAposMeses = dataInicio.AddMonths(meses);
-            int diasRestantes = (dataFim - dataAposMeses).Days;
+            int diasRestantes = (dataFim - dataSimulada).Days;
 
             if (diasRestantes > 0)
             {
