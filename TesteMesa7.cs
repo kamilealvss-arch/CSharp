@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Globalization;
 
 namespace CalculadoraInvestimentos
 {
-
     class Investimento
     {
         private double entradaInicial;
@@ -26,95 +25,95 @@ namespace CalculadoraInvestimentos
 
         public void Calculo()
         {
+            int meses = ((dataFim.Year - dataInicio.Year) * 12) + (dataFim.Month - dataInicio.Month) + 1;
+            int mesResgate = ((dataResgate.Year - dataInicio.Year) * 12) + (dataResgate.Month - dataInicio.Month) + 1;
 
-            Console.WriteLine($"Data de Início: {dataInicio:dd/MM/yyyy}");
-            Console.WriteLine($"Data Final: {dataFim:dd/MM/yyyy}");
-            Console.WriteLine($"Valor investido {entradaInicial}");
-
-            int meses = ((dataFim.Year - dataInicio.Year) * 12) + dataFim.Month - dataInicio.Month;
-            int dias = (dataFim - dataInicio).Days;
-
-            int mesResgate = ((dataResgate.Year - dataInicio.Year) * 12) + (dataResgate.Month - dataInicio.Month);
+            Console.WriteLine("\n==========================================================================================");
+            Console.WriteLine($"Data de Início: {dataInicio:dd/MM/yyyy} | Data Final: {dataFim:dd/MM/yyyy}");
+            Console.WriteLine($"Valor Investido: {entradaInicial:C2}");
+            Console.WriteLine($"Meses calculados: {meses} | Dias totais: {(dataFim - dataInicio).Days}");
+            Console.WriteLine("==========================================================================================");
 
             double presente = entradaInicial;
             double rendimentoMes;
+            double rendaAcumulada = 0;
 
-            Console.WriteLine("\nPeríodo | Rendimento | Saldo Líquido");
-            Console.WriteLine("Meses calculados: " + meses);
-            Console.WriteLine("Dias totais: " + dias);
-            Console.WriteLine("---------------------------------------------------------------------------------");
-
+            Console.WriteLine(string.Format("{0,-12} | {1,-10} | {2,-15} | {3,-15} | {4,-13} | {5,-15}", 
+                "Período", "Taxa Juros", "Rendimento", "Renda Acum.", "Resgate", "Saldo"));
+            Console.WriteLine(new string('-', 95));
 
             for (int m = 1; m <= meses; m++)
             {
                 rendimentoMes = presente * taxaJuros;
                 presente = presente + rendimentoMes;
+                rendaAcumulada += rendimentoMes;
 
-                if (m == mesResgate)
+                if (m == mesResgate && valorResgate > 0)
                 {
                     presente = presente - valorResgate;
-                    Console.WriteLine($"Mês {m} | {rendimentoMes:C2} | Saldo: {presente:C2} | Valor resgatado: {valorResgate:C2}");
+                    
+                    Console.WriteLine(string.Format("{0,-12} | {1,-10:P2} | {2,-15:C2} | {3,-15:C2} | {4,-13:C2} | {5,-15:C2}",
+                        $"Mês {m}", taxaJuros, rendimentoMes, rendaAcumulada, valorResgate, presente));
                 }
                 else
                 {
-                    Console.WriteLine($"Mês {m} | {rendimentoMes:C2} | Saldo: {presente:C2} | Valor resgatado: {0:C2}");
+                    Console.WriteLine(string.Format("{0,-12} | {1,-10:P2} | {2,-15:C2} | {3,-15:C2} | {4,-13:C2} | {5,-15:C2}",
+                        $"Mês {m}", taxaJuros, rendimentoMes, rendaAcumulada, 0.0, presente));
                 }
             }
 
             DateTime dataAposMeses = dataInicio.AddMonths(meses);
-
-
             int diasRestantes = (dataFim - dataAposMeses).Days;
 
             if (diasRestantes > 0)
             {
                 double taxaDiaria = taxaJuros / 30.0;
-
                 double rendimentoDias = presente * taxaDiaria * diasRestantes;
                 presente = presente + rendimentoDias;
+                rendaAcumulada += rendimentoDias;
 
-                Console.WriteLine($"Dias +{diasRestantes} | {rendimentoDias:C2} | Saldo: {presente:C2} | (Rendimento dos dias restantes)");
+                Console.WriteLine(string.Format("{0,-12} | {1,-10:P2} | {2,-15:C2} | {3,-15:C2} | {4,-13:C2} | {5,-15:C2}",
+                    $"+{diasRestantes} Dias", taxaDiaria, rendimentoDias, rendaAcumulada, 0.0, presente));
             }
+            Console.WriteLine(new string('-', 95));
         }
     }
-}
 
-
-class Program
-{
-    static void Main(string[] args)
+    class Program
     {
-        CultureInfo.CurrentCulture = new CultureInfo("pt-BR");
-
-        Console.WriteLine("Digite o valor que deseja investir:");
-        double entradaInicial = Convert.ToDouble(Console.ReadLine());
-
-        Console.WriteLine("Digite a taxa do juros (Ex: 2,0 para 2%):");
-        double taxaJuros = Convert.ToDouble(Console.ReadLine()) / 100;
-
-        Console.WriteLine("Digite a data de início (dd/mm/aaaa):");
-        DateTime dataInicio = DateTime.ParseExact(Console.ReadLine() ?? "", "dd/MM/yyyy", null);
-
-        Console.WriteLine("Digite a data final (dd/mm/aaaa):");
-        DateTime dataFim = DateTime.ParseExact(Console.ReadLine() ?? "", "dd/MM/yyyy", null);
-
-        Console.WriteLine("Deseja realizar um resgate? (sim/não)");
-        string resgate = Console.ReadLine()?.ToLower() ?? "";
-
-        double valorResgate = 0;
-        DateTime dataResgate = DateTime.MinValue;
-
-        if (resgate == "sim")
+        static void Main(string[] args)
         {
-            Console.WriteLine("Qual o valor que deseja resgatar?");
-            valorResgate = Convert.ToDouble(Console.ReadLine());
+            CultureInfo.CurrentCulture = new CultureInfo("pt-BR");
 
-            Console.WriteLine("Qual data deseja realizar o resgate?");
-            dataResgate = DateTime.ParseExact(Console.ReadLine() ?? "", "dd/MM/yyyy", null);
+            Console.WriteLine("Digite o valor que deseja investir:");
+            double entradaInicial = Convert.ToDouble(Console.ReadLine());
+
+            Console.WriteLine("Digite a taxa do juros (Ex: 2,0 para 2%):");
+            double taxaJuros = Convert.ToDouble(Console.ReadLine()) / 100;
+
+            Console.WriteLine("Digite a data de início (dd/mm/aaaa):");
+            DateTime dataInicio = DateTime.ParseExact(Console.ReadLine() ?? "", "dd/MM/yyyy", null);
+
+            Console.WriteLine("Digite a data final (dd/mm/aaaa):");
+            DateTime dataFim = DateTime.ParseExact(Console.ReadLine() ?? "", "dd/MM/yyyy", null);
+
+            Console.WriteLine("Deseja realizar um resgate? (sim/não)");
+            string resgate = Console.ReadLine()?.ToLower() ?? "";
+
+            double valorResgate = 0;
+            DateTime dataResgate = DateTime.MinValue;
+
+            if (resgate == "sim")
+            {
+                Console.WriteLine("Qual o valor que deseja resgatar?");
+                valorResgate = Convert.ToDouble(Console.ReadLine());
+
+                Console.WriteLine("Qual data deseja realizar o resgate?");
+                dataResgate = DateTime.ParseExact(Console.ReadLine() ?? "", "dd/MM/yyyy", null);
+            }
+
+            Investimento meuInvestimento = new Investimento(entradaInicial, taxaJuros, dataInicio, dataFim, valorResgate, dataResgate);
+            meuInvestimento.Calculo();
         }
-
-        Investimento meuInvestimento = new Investimento(entradaInicial, taxaJuros, dataInicio, dataFim, valorResgate, dataResgate);
-        meuInvestimento.Calculo();
     }
 }
-
